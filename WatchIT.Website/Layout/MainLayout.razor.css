@@ -1,0 +1,29 @@
+﻿.section {
+    padding: 10px;
+    border-radius: 10px;
+    width: calc(100% - 20px);
+    background-color: #272829;
+}
+.layout-body {
+    padding: 15px;
+}
+
+.header {
+    position: sticky;
+    height: 50px;
+    top: 0;
+}
+
+.footer {
+    bottom: 0;
+    height: 100px;
+}
+
+a {
+    text-decoration: none;
+}
+
+h1 {
+    margin: 0;
+    color: #ba4e14
+}

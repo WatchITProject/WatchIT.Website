@@ -1,0 +1,22 @@
+﻿@page "/auth/{type?}"
+
+@layout EmptyLayout
+
+<div id="login-body" style="background-image: url(@url);">
+    <h3>Auth</h3>
+
+    <p>@Type</p>
+</div>
+
+@code
+{
+    [Parameter]
+    public string Type { get; set; }
+
+    private string url = "https://images2.alphacoders.com/870/870886.jpg";
+
+    protected override void OnInitialized()
+    {
+        Type = Type ?? "login";
+    }
+}
