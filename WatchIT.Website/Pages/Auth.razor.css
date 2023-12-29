@@ -1,8 +1,40 @@
-﻿#login-body {
+﻿.column {
+    float: left;
+    width: 50%;
+    height: 100vh;
+}
+
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+    height: 100%;
+}
+
+#auth-body {
     position: absolute;
     top: 0;
     left: 0;
     height: 100%;
     width: 100%;
     background-position: center;
+}
+
+#form-box {
+    background: #171717;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.center-both {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
 }

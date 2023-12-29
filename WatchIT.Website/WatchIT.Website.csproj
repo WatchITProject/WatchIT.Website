@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\WatchIT.Website.Authentication\WatchIT.Website.Authentication.csproj" />
     <ProjectReference Include="..\WatchIT.Website.Services\WatchIT.Website.Services.Account\WatchIT.Website.Services.Accounts.csproj" />
+    <ProjectReference Include="..\WatchIT.Website.Services\WatchIT.Website.Services.Website\WatchIT.Website.Services.Website.csproj" />
     <ProjectReference Include="..\WatchIT.Website.Services\WatchIT.Website.Services\WatchIT.Website.Services.csproj" />
   </ItemGroup>
 

@@ -9,14 +9,6 @@ namespace WatchIT.Website.Services
 {
     public class ApiConfiguration
     {
-        #region FIELDS
-
-        protected readonly IConfiguration _configuration;
-
-        #endregion
-
-
-
         #region PROPERTIES
 
         public string Base { get; private set; }
@@ -29,9 +21,7 @@ namespace WatchIT.Website.Services
 
         public ApiConfiguration(IConfiguration configuration)
         {
-            _configuration = configuration;
-
-            Base = _configuration.GetSection("API")["Base"];
+            Base = configuration.GetSection("API")["Base"];
         }
 
         #endregion

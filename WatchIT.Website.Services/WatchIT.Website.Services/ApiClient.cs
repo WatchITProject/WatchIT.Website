@@ -75,25 +75,33 @@ namespace WatchIT.Website.Services
 
         private async Task<T> SendRequestAsync<T>(ApiMethodType type, string url, HttpContent? content)
         {
-            HttpResponseMessage response = type switch
+            try
             {
-                ApiMethodType.GET => await _httpClient.GetAsync(url),
-                ApiMethodType.POST => await _httpClient.PostAsync(url, content),
-                ApiMethodType.PUT => await _httpClient.PutAsync(url, content),
-                ApiMethodType.DELETE => await _httpClient.DeleteAsync(url),
-                _ => throw new NotImplementedException()
-            };
+                HttpResponseMessage response = type switch
+                {
+                    ApiMethodType.GET => await _httpClient.GetAsync(url),
+                    ApiMethodType.POST => await _httpClient.PostAsync(url, content),
+                    ApiMethodType.PUT => await _httpClient.PutAsync(url, content),
+                    ApiMethodType.DELETE => await _httpClient.DeleteAsync(url),
+                    _ => throw new NotImplementedException()
+                };
 
-            string responseBodyString = await response.Content.ReadAsStringAsync();
+                string responseBodyString = await response.Content.ReadAsStringAsync();
 
-            T? responseBodyObject = JsonConvert.DeserializeObject<T>(responseBodyString);
+                T? responseBodyObject = JsonConvert.DeserializeObject<T>(responseBodyString);
 
-            if (responseBodyObject is null)
-            {
-                throw new Exception($"Wrong response type. Response: {responseBodyString}");
+                if (responseBodyObject is null)
+                {
+                    throw new Exception($"Wrong response type. Response: {responseBodyString}; {response.StatusCode}");
+                }
+
+                return responseBodyObject;
             }
-
-            return responseBodyObject;
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
         }
 
         #endregion

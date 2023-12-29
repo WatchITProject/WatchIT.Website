@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WatchIT.Website.Services.Authentication
+namespace WatchIT.Website.Authentication
 {
-    internal class AuthenticationConfiguration
+    public class AuthenticationConfiguration
     {
         #region CONSTANTS
 

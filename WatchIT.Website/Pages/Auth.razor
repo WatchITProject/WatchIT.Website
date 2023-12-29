@@ -2,21 +2,156 @@
 
 @layout EmptyLayout
 
-<div id="login-body" style="background-image: url(@url);">
-    <h3>Auth</h3>
 
-    <p>@Type</p>
-</div>
+
+
+
+@if (background is not null)
+{
+    <div id="auth-body" style="background-image: url(@background);">
+        <div class="row">
+            <div class="column center-both">
+                <div id="form-box">
+                    <div>
+                        @if (Type == "login")
+                        {
+                            <h1>Sign in</h1>
+                        }
+                        else
+                        {
+                            <h1>Sign up</h1>
+                        }
+                    </div>
+                    <div id="form-box">
+                        @if (Type == "login")
+                        {
+                            <form id="signin-form">
+                                <div class="field">
+                                    <input type="text" placeholder="Username or email" @bind="authenticateRequest.UsernameOrEmail" @bind:event="oninput" required />
+                                </div>
+                                <div class="field">
+                                    <input type="password" placeholder="Password" @bind="authenticateRequest.Password" @bind:event="oninput" required />
+                                </div>
+                                <div class="field">
+                                    <input type="checkbox" @bind="authenticateRequest.RememberMe" @bind:event="oninput" id="remember-me-input" />
+                                    <label for="remember-me-input">Remember me</label>
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <form id="signup-form">
+                                <div class="field">
+                                    <input type="text" placeholder="Username" @bind="registerRequest.Username" @bind:event="oninput" required />
+                                </div>
+                                <div class="field">
+                                    <input type="text" placeholder="Email" @bind="registerRequest.Email" @bind:event="oninput" required />
+                                </div>
+                                <div class="field">
+                                    <input type="password" placeholder="Password" @bind="registerRequest.Password" @bind:event="oninput" required />
+                                </div>
+                                <div class="field">
+                                    <input type="password" placeholder="Confirm password" required />
+                                </div>
+                            </form>
+                        }
+                    </div>
+                    <div id="submit-box">
+                        <input type="submit" id="submit-input" @onclick="@Submit"/>
+                    </div>
+                    <div class="toggle">
+                        <input type="radio" name="slide" id="signin-input" checked="@(Type == "login")" @onchange="@(() => Type = "login")" />
+                        <label for="signin-input" class="slide signin">Sign in</label>
+                        <input type="radio" name="slide" id="signup-input" checked="@(Type == "register")" @onchange="@(() => Type = "register")"/>
+                        <label for="signup-input" class="slide signup">Sign up</label>
+                        <div class="slider-tab"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                
+            </div>
+        </div>
+    </div>
+}
+
+
+
+
 
 @code
 {
+    #region PARAMETERS
+
     [Parameter]
     public string Type { get; set; }
 
-    private string url = "https://images2.alphacoders.com/870/870886.jpg";
+    #endregion
 
-    protected override void OnInitialized()
+
+
+    #region SERVICES
+
+    [Inject]
+    protected IAuthenticationService _authenticationService { get; set; }
+
+    [Inject]
+    protected IWebsiteAuthBackgroundService _websiteAuthBackgroundService { get; set; }
+
+    [Inject]
+    protected IAccountsService _accountsService { get; set; }
+
+    [Inject]
+    protected NavigationManager _navigationManager { get; set; }
+
+    #endregion
+
+
+
+    #region FIELDS
+
+    protected string? background = null;
+
+    protected RegisterRequest registerRequest = new RegisterRequest();
+    protected AuthenticateRequest authenticateRequest = new AuthenticateRequest();
+
+    #endregion
+
+
+
+    #region METHODS
+
+    protected override async Task OnInitializedAsync()
     {
         Type = Type ?? "login";
+
+        ApiResponse<AuthBackgroundResponse> response = await _websiteAuthBackgroundService.GetRandomAuthBackground();
+        background = $"data:{response.Data.ContentType};base64,{Convert.ToBase64String(response.Data.Image)}";
     }
+
+    protected async Task Submit()
+    {
+        if (Type == "login")
+        {
+            ApiResponse<AuthenticateResponse> authenticateResponse = await _accountsService.Authenticate(authenticateRequest);
+
+            if (authenticateResponse.Success)
+            {
+                await _authenticationService.SaveAuthenticationData(authenticateResponse.Data);
+
+                _navigationManager.NavigateTo("/");
+            }
+        }
+        else
+        {
+            ApiResponse registerResponse = await _accountsService.Register(registerRequest);
+
+            if (registerResponse.Success)
+            {
+                _navigationManager.NavigateTo("/");
+            }
+        }
+    }
+
+    #endregion
 }

@@ -11,16 +11,17 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using WatchIT.Common;
 using WatchIT.Common.Accounts.Response;
+using WatchIT.Website.Authentication;
 using WatchIT.Website.Services.Accounts;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace WatchIT.Website.Services.Authentication
+namespace WatchIT.Website.Authentication
 {
     public class JWTAuthenticationStateProvider : AuthenticationStateProvider
     {
         #region FIELDS
 
-        private readonly ILocalStorageService _localStorageService;
+        private readonly IAuthenticationService _authenticationService;
         private readonly IAccountsService _accountsService;
 
         private readonly HttpClient _httpClient;
@@ -31,9 +32,9 @@ namespace WatchIT.Website.Services.Authentication
 
         #region CONSTRUCTORS
 
-        public JWTAuthenticationStateProvider(ILocalStorageService localStorageService, HttpClient httpClient, IAccountsService accountsService)
+        public JWTAuthenticationStateProvider(IAuthenticationService authenticationService, HttpClient httpClient, IAccountsService accountsService)
         {
-            _localStorageService = localStorageService;
+            _authenticationService = authenticationService;
             _httpClient = httpClient;
             _accountsService = accountsService;
         }
@@ -49,8 +50,13 @@ namespace WatchIT.Website.Services.Authentication
             _httpClient.DefaultRequestHeaders.Authorization = null;
             AuthenticationState state = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
 
-            string accessToken = await _localStorageService.GetItemAsync<string>(AuthenticationConfiguration.ACCESS_TOKEN_STORAGE_KEY);
-            string refreshToken = await _localStorageService.GetItemAsync<string>(AuthenticationConfiguration.REFRESH_TOKEN_STORAGE_KEY);
+            Task<string> accessTokenTask = _authenticationService.GetAccessToken();
+            Task<string> refreshTokenTask = _authenticationService.GetRefreshToken();
+
+            await Task.WhenAll(accessTokenTask, refreshTokenTask);
+
+            string accessToken = accessTokenTask.Result;
+            string refreshToken = refreshTokenTask.Result;
             bool refreshed = false;
 
             if (string.IsNullOrWhiteSpace(accessToken))
@@ -122,12 +128,8 @@ namespace WatchIT.Website.Services.Authentication
                 return null;
             }
 
-            string accessToken = response.Data.AccessToken;
-            await Task.WhenAll(
-                _localStorageService.SetItemAsync(AuthenticationConfiguration.REFRESH_TOKEN_STORAGE_KEY, response.Data.RefreshToken).AsTask(),
-                _localStorageService.SetItemAsync(AuthenticationConfiguration.ACCESS_TOKEN_STORAGE_KEY, accessToken).AsTask()
-            );
-            return accessToken;
+            await _authenticationService.SaveAuthenticationData(response.Data);
+            return response.Data.AccessToken;
         }
 
         private static IEnumerable<Claim> ParseClaimsFromToken(string token)

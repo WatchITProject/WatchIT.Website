@@ -6,9 +6,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using WatchIT.Website.Authentication;
 using WatchIT.Website.Services;
 using WatchIT.Website.Services.Accounts;
-using WatchIT.Website.Services.Authentication;
+using WatchIT.Website.Authentication;
+using WatchIT.Website.Services.Website;
+using WatchIT.Website.Services.Website.AuthBackground;
 
 namespace WatchIT.Website
 {
@@ -21,7 +24,7 @@ namespace WatchIT.Website
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
             // Storage
-            builder.Services.AddBlazoredLocalStorage(config =>
+            builder.Services.AddBlazoredLocalStorageAsSingleton(config =>
             {
                 config.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
                 config.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
@@ -32,20 +35,24 @@ namespace WatchIT.Website
                 config.JsonSerializerOptions.WriteIndented = false;
             });
 
-            // Configuration
-            builder.Services.AddSingleton<ApiConfiguration>();
-            builder.Services.AddSingleton<AccountsConfiguration>();
-
             // Clients
             builder.Services.AddSingleton<HttpClient>();
             builder.Services.AddSingleton<ApiClient>();
 
-            // Auth
-            builder.Services.AddAuthorizationCore();
-            builder.Services.AddScoped<AuthenticationStateProvider, JWTAuthenticationStateProvider>();
+            // Configuration
+            builder.Services.AddSingleton<ApiConfiguration>();
+            builder.Services.AddSingleton<AccountsConfiguration>();
+            builder.Services.AddSingleton<WebsiteConfiguration>();
+            builder.Services.AddSingleton<WebsiteAuthBackgroundConfiguration>();
 
             // Services
-            builder.Services.AddHttpClient<IAccountsService, AccountsService>();
+            builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
+            builder.Services.AddSingleton<IAccountsService, AccountsService>();
+            builder.Services.AddSingleton<IWebsiteAuthBackgroundService, WebsiteAuthBackgroundService>();
+
+            // Auth
+            builder.Services.AddAuthorizationCore();
+            builder.Services.AddSingleton<AuthenticationStateProvider, JWTAuthenticationStateProvider>();
 
             await builder.Build().RunAsync();
         }

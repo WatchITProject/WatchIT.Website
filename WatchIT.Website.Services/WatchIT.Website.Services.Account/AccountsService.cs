@@ -49,12 +49,12 @@ namespace WatchIT.Website.Services.Accounts
 
         public async Task<ApiResponse<AuthenticateResponse>> Authenticate(AuthenticateRequest data)
         {
-            return await _apiClient.SendAsync<AuthenticateResponse, AuthenticateRequest>(ApiMethodType.POST, _configuration.AccountsAuthenticateRefresh, data);
+            return await _apiClient.SendAsync<AuthenticateResponse, AuthenticateRequest>(ApiMethodType.POST, _configuration.AccountsAuthenticate, data);
         }
 
         public async Task<ApiResponse<AuthenticateResponse>> AuthenticateRefresh()
         {
-            return await _apiClient.SendAsync<AuthenticateResponse>(ApiMethodType.POST, _configuration.AccountsAuthenticate);
+            return await _apiClient.SendAsync<AuthenticateResponse>(ApiMethodType.POST, _configuration.AccountsAuthenticateRefresh);
         }
 
         #endregion

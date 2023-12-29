@@ -24,9 +24,9 @@ namespace WatchIT.Website.Services.Accounts
 
         public AccountsConfiguration(IConfiguration configuration) : base(configuration)
         {
-            AccountsBase = $"{Base}{_configuration.GetSection("API").GetSection("Accounts")["Base"]}";
-            AccountsAuthenticate = $"{AccountsBase}{_configuration.GetSection("API").GetSection("Accounts")["Authenticate"]}";
-            AccountsAuthenticateRefresh = $"{AccountsBase}{_configuration.GetSection("API").GetSection("Accounts")["AuthenticateRefresh"]}";
+            AccountsBase = $"{Base}{configuration.GetSection("API").GetSection("Accounts")["Base"]}";
+            AccountsAuthenticate = $"{AccountsBase}{configuration.GetSection("API").GetSection("Accounts")["Authenticate"]}";
+            AccountsAuthenticateRefresh = $"{AccountsBase}{configuration.GetSection("API").GetSection("Accounts")["AuthenticateRefresh"]}";
         }
 
         #endregion
